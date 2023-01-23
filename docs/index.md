@@ -1,5 +1,5 @@
 ---
-title: Politics Report
+title: Mortality Report
 layout: page
 ---
 
