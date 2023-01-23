@@ -1,0 +1,11 @@
+title: "[SPM] Covid Mortality Report"
+description: >-
+  SpacePowerMonkey provides this report tracking COVID-19 mortality and excess mortality to the public free of charge.
+baseurl: "/mfpkg-mortality-tracker"
+url: "https://www.spacepowermonkey.com"
+
+author:
+  email: contact@spacepowermonkey.com
+
+markdown: kramdown
+remote_theme: spacepowermonkey/monkeyreport
