@@ -7,5 +7,4 @@ def run():
     mortality_df = mortality_stats.run(mortality_df)
     render_charts.run(mortality_df)
 
-    print(mortality_df)
     return

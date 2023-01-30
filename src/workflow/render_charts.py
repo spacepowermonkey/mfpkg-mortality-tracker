@@ -15,10 +15,10 @@ XTICK_NONE = (
 )
 
 YTICK_PERCENTS = (
-    (-0.3, 1),
-    [-0.2, -0.1, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
-    ["-20%", "-10%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%"],
-    "% of All-Cause Mortality"
+    (-0.3, 1.3),
+    [-0.2, -0.1, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2],
+    ["-20%", "-10%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%", "110%", "120%"],
+    "% of Baseline Mortality"
 )
 
 YTICK_2LOG = (
@@ -66,7 +66,20 @@ def _shaded_composite(ax, mortality_df, key, title, color, xconf, yconf):
     ax.set_yticks(yticks, labels=ylabels)
     ax.tick_params(labelbottom=True, bottom=False, labelleft=True, left=False, labelright=True, right=False)
 
+    return
 
+
+def _multiline(ax, mortality_df, key, color):
+    mortality_by_country = mortality_df.groupby(by="country")
+    for country in mortality_by_country:
+        name, data = country
+        cum_mort = data[key].to_numpy()
+
+        ax.plot(list(range(len(cum_mort))), cum_mort, color=color)
+
+    ax.axhline(y=0, color="#000000", linewidth=1)
+
+    ax.set_ylim(-0.1, 1.0)
     return
 
 
@@ -78,7 +91,6 @@ def run(mortality_df):
     ax_covid = fig.add_axes([0.1,0.53,0.8,0.17])
     ax_nce = fig.add_axes([0.1,0.33,0.8,0.17])
     ax_rel = fig.add_axes([0.1,0.12,0.8,0.17])
-
 
     ax_text.text(0.05, 0.93, "COVID Mortality Overview", fontsize=24)
     ax_text.text(0.05, 0.06, "Source: OECD COVID-19 Health Indicators - Weekly Mortality")
@@ -94,7 +106,23 @@ def run(mortality_df):
     _shaded_composite(ax_rel, mortality_df, "n_rel_mort",
         "Relative COVID to non-COVID Excess Mortality", "#785EF0", xconf=XTICK_YEARS, yconf=YTICK_2LOG)
 
-
     _save_image(fig, "/docs/covid-mortality")
 
+
+    fig2 = figure.Figure(figsize=(17, 11), dpi=300)
+    ax_text = fig2.add_axes([0,0,1,1])
+    ax_excess = fig2.add_axes([0.1,0.12,0.25,0.78])
+    ax_covid = fig2.add_axes([0.40,0.12,0.25,0.78])
+    ax_nce = fig2.add_axes([0.70,0.12,0.25,0.78])
+
+    ax_text.text(0.05, 0.93, "COVID Cumulative Mortality Overview", fontsize=24)
+    ax_text.text(0.05, 0.06, "Source: OECD COVID-19 Health Indicators - Weekly Mortality")
+    ax_text.text(0.05, 0.04, "https://stats.oecd.org/index.aspx?queryid=104676")
+    ax_text.text(0.85, 0.04, f"Rendered on {datetime.date.today()}")
+
+    _multiline(ax_excess, mortality_df, "ncum_excess", "#DC267F")
+    _multiline(ax_covid, mortality_df, "ncum_covid", "#FE6100")
+    _multiline(ax_nce, mortality_df, "ncum_nce", "#648FFF")
+
+    _save_image(fig2, "/docs/covid-cumulative")
     return
